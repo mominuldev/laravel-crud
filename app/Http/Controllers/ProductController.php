@@ -10,8 +10,9 @@ class ProductController extends Controller
     // Display a listing of the resource.
     public function index()
     {
-        $products = Product::all();
+        $products = Product::orderBy('id', 'desc')->paginate(15);
         return view('products.index', compact('products'));
+
     }
 
     // Show the form for creating a new resource.
@@ -28,7 +29,7 @@ class ProductController extends Controller
             'description' => 'required',
             'sku' => 'required|unique:products',
             'price' => 'required',
-            'image' => 'nullable|image'
+            'image' => 'nullable|image',
         ]);
 
         $product = new Product();
@@ -37,9 +38,12 @@ class ProductController extends Controller
         $product->sku = $request->sku;
         $product->price = $request->price;
 
+        // Image upload file storage
+
         if ($request->hasFile('image')) {
             $product->image = $request->file('image')->store('products');
         }
+
 
         $product->save();
 
@@ -60,7 +64,7 @@ class ProductController extends Controller
             'description' => 'required',
             'sku' => 'required|unique:products,sku,' . $product->id,
             'price' => 'required',
-            'image' => 'nullable|image'
+            'image' => 'nullable|image',
         ]);
 
         $product->name = $request->name;
@@ -68,9 +72,12 @@ class ProductController extends Controller
         $product->sku = $request->sku;
         $product->price = $request->price;
 
+        // Image Upload File Storage with create folder products
+
         if ($request->hasFile('image')) {
             $product->image = $request->file('image')->store('products');
         }
+
 
         $product->save();
 
@@ -115,13 +122,5 @@ class ProductController extends Controller
         $products = Product::orderBy($request->sort_by, $request->sort_order)->get();
         return view('products.index', compact('products'));
     }
-
-    // Paginate the products.
-    public function paginate(Request $request)
-    {
-        $products = Product::paginate($request->per_page);
-        return view('products.index', compact('products'));
-    }
-
 
 }
